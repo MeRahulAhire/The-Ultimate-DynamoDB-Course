@@ -135,7 +135,7 @@ eg:
 
 It can be any random variable.
 
-### So let's try to get an attribute `Comment` from our JSON date which is a reserved keyword
+#### So let's try to get an attribute `Comment` from our JSON date which is a reserved keyword
 
 ```js
 const AWS = require('aws-sdk');
@@ -170,7 +170,7 @@ docClient.get(params, function(err, data) {
   ConsumedCapacity: { TableName: 'itemOps', CapacityUnits: 0.5 }
 }
 ```
-### Attribute Names Containing Dots
+## Attribute Names Containing Dots
 
 Here we'll see the proper way to get `Safety.Warning` Attribute
 
