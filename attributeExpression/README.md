@@ -2,7 +2,7 @@
 
 ## JSON sample for this module
 
-```js
+```json
 {
     "Id": 123,
     "Title": "Bicycle 123",
