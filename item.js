@@ -9,12 +9,10 @@ var params = {
 	Key: {
 		Id: 123
 	},
-	ProjectionExpression: '#c',
-    ExpressionAttributeNames:{
-        '#c':'Comment'
-    },
-    ReturnConsumedCapacity: 'TOTAL'
-
+	ProjectionExpression: '#pr.FiveStar, #pr.ThreeStar, #pr.OneStar',
+	ExpressionAttributeNames: {
+		'#pr': 'ProductReviews'
+	}
 };
 
 docClient.get(params, function(err, data) {
