@@ -328,13 +328,106 @@ docClient.get(params, function(err, data) {
 **Result**
 ```js
 { Item: { ProductReviews: { FiveStar: [Array], OneStar: [Array] } } }
-// There's no ThreeStar attribute because it doesn't exist in our Json file
+// There's no ThreeStar attribute because it doesn't exist in our JSON file
 ```
 ## Expression Attribute Values
-In case of `PojectionAttribute` what we saw that to assign any variable, we use `#`symbol. Now for defining value `':'` is used.
+In case of `ProjectionAttribute` what we saw that to assign any variable, we use `#`symbol. Now for defining value `':'` is used.
 
 eg. :
 - `:c`
   - `":c": { "S": "Black" },`
 - `:p`
-    - ` ":p": { "N": "500" }`
+    - `":p": { "N": "500" }`
+
+We'll see how to use Expression Attribute as we go along to use the update Expression.
+
+## Condition Expressions
+Consider it as a checking mechanism when you a `put`, `update` or `delete` request to know if that attribute exist or not.
+
+### List of all Condition Expression
+- `attribute_exists` 
+- `attribute_not_exists`
+- `attribute_type`
+- `begins_with`
+- `contains`
+- `size`
+
+For more info over these five expression [see this](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.OperatorsAndFunctions.html#Expressions.OperatorsAndFunctions.Functions "functions")
+
+But lets understand it in short.
+
+**1. attribute_exists** :
+By specifying this attribute, you say to DynamoDB, "hey, do this `put` operation if this item exist.
+
+**2. attribute_not_exists** :
+By specifying this attribute, you say to DynamoDB, "hey, do this `put` operation only if this item does not exist.
+
+**3. attribute_type** : This one is used to check/validate the type of attribute. 
+
+**4. begin_with** : Check whether the first few characters of the front view picture URL are `http://` or any character as you want.
+
+**5. contains** : Check whether the Brand attribute contains the substring Company.
+
+**6. size** : Returns the size of attribute.
+
+### Conditional Put in Javascript
+I've created a table name 'email' with Partition/Primary Key as email (string) and as of now, it's empty so, lets try to do a conditional put of 
+
+**`1. attribute_exists`** for an fictional email abc@example.com
+
+```js
+const AWS = require('aws-sdk');
+
+const docClient = new AWS.DynamoDB.DocumentClient({
+	region: 'ap-south-1'
+});
+
+var params = {
+	TableName: 'email',
+	Item: {
+		email: 'abc@example.com',
+		data:'this is a random data'
+	},
+	ConditionExpression: 'attribute_exists(email)'
+};
+
+docClient.put(params, function(err, data) {
+	if (err)
+		console.log(err, err.stack); // an error occurred
+	else console.log(data); // successful response
+});
+
+```
+**Result**
+```bash
+ConditionalCheckFailedException: The conditional request failed
+```
+2. Now, lets do the same for **`attribute_not_exists`**
+```js
+const AWS = require('aws-sdk');
+
+const docClient = new AWS.DynamoDB.DocumentClient({
+	region: 'ap-south-1'
+});
+
+var params = {
+	TableName: 'email',
+	Item: {
+		email: 'abc@example.com',
+		data: 'this is a random data'
+	},
+	ConditionExpression: 'attribute_not_exists(email)'
+};
+
+docClient.put(params, function(err, data) {
+	if (err)
+		console.log(err, err.stack); // an error occurred
+	else console.log(data); // successful response
+});
+```
+**Result**
+```bash
+{} --> Result is blank but I can confirm it was uploaded to my DynamoDB Table.
+```
+same goes for `update` and `delete` operation
+
