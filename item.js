@@ -5,12 +5,40 @@ const docClient = new AWS.DynamoDB.DocumentClient({
 });
 
 var params = {
-	TableName: 'email',
-	Item: {
-		email: 'abc@example.com',
-		data: 'this is a random data'
-	},
-	ConditionExpression: 'attribute_not_exists(email)'
+	TableName: 'itemOps',
+	Item:{
+		"Id": 123,
+		"Title": "Bicycle 123",
+		"Description": "123 description",
+		"BicycleType": "Hybrid",
+		"Brand": "Brand-Company C",
+		"Price": 500,
+		"Color": ["Red", "Black"],
+		"ProductCategory": "Bicycle",
+		"InStock": true,
+		"QuantityOnHand": null,
+		"RelatedItems": [
+			341,
+			472,
+			649
+		],
+		"Pictures": {
+			"FrontView": "http://example.com/products/123_front.jpg",
+			"RearView": "http://example.com/products/123_rear.jpg",
+			"SideView": "http://example.com/products/123_left_side.jpg"
+		},
+		"ProductReviews": {
+			"FiveStar": [
+					"Excellent! Can't recommend it highly enough! Buy it!",
+					"Do yourself a favor and buy this."
+			],
+			"OneStar": [
+					"Terrible product! Do not buy this."
+			]
+		},
+		"Comment": "This product sells out quickly during the summer",
+		"Safety.Warning": "Always wear a helmet"
+	 }
 };
 
 docClient.put(params, function(err, data) {

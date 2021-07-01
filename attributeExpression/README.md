@@ -73,6 +73,113 @@
 - `MyMap.nestedField`
 - `MyMap.nestedField.deeplyNestedField`
 
+### Creating Table `itemOps`
+```js
+const AWS = require('aws-sdk');
+
+const dynamodb = new AWS.DynamoDB({
+	region: 'ap-south-1'
+});
+
+var params = {
+	TableName: 'itemOps',
+	AttributeDefinitions: [
+		{
+			AttributeName: 'Id',
+			AttributeType: 'N'
+		}
+	],
+	KeySchema: [
+		{
+			AttributeName: 'Id',
+			KeyType: 'HASH'
+		}
+	], 
+	BillingMode: 'PAY_PER_REQUEST'
+};
+//documentClient dont support creation of Table
+
+dynamodb.createTable(params, function(err, data) {  
+	if (err)
+		console.log(err, err.stack); // an error occurred
+	else console.log(data); // successful response
+});
+
+```
+**Result**
+```js
+{
+  TableDescription: {
+    AttributeDefinitions: [ [Object] ],
+    TableName: 'itemOps',
+    KeySchema: [ [Object] ],
+    TableStatus: 'CREATING',
+    CreationDateTime: 2021-07-01T12:28:34.328Z,
+    ProvisionedThroughput: {      
+      NumberOfDecreasesToday: 0,
+      ReadCapacityUnits: 0,
+      WriteCapacityUnits: 0
+    },
+    TableSizeBytes: 0,
+    ItemCount: 0,
+    TableArn: 'arn:aws:dynamodb:ap-south-1:925122152599:table/itemOps',
+    TableId: 'cbb73788-f3b4-4871-929d-8947858f57de',
+    BillingModeSummary: { BillingMode: 'PAY_PER_REQUEST' }
+  }
+}
+```
+### [Insert our JSON data](#insert-json)
+```js
+const AWS = require('aws-sdk');
+
+const docClient = new AWS.DynamoDB.DocumentClient({
+	region: 'ap-south-1'
+});
+
+var params = {
+	TableName: 'itemOps',
+	Item:{
+		"Id": 123,
+		"Title": "Bicycle 123",
+		"Description": "123 description",
+		"BicycleType": "Hybrid",
+		"Brand": "Brand-Company C",
+		"Price": 500,
+		"Color": ["Red", "Black"],
+		"ProductCategory": "Bicycle",
+		"InStock": true,
+		"QuantityOnHand": null,
+		"RelatedItems": [
+			341,
+			472,
+			649
+		],
+		"Pictures": {
+			"FrontView": "http://example.com/products/123_front.jpg",
+			"RearView": "http://example.com/products/123_rear.jpg",
+			"SideView": "http://example.com/products/123_left_side.jpg"
+		},
+		"ProductReviews": {
+			"FiveStar": [
+					"Excellent! Can't recommend it highly enough! Buy it!",
+					"Do yourself a favor and buy this."
+			],
+			"OneStar": [
+					"Terrible product! Do not buy this."
+			]
+		},
+		"Comment": "This product sells out quickly during the summer",
+		"Safety.Warning": "Always wear a helmet"
+	 }
+};
+
+docClient.put(params, function(err, data) {
+	if (err)
+		console.log(err, err.stack); // an error occurred
+	else console.log(data); // successful response
+});
+
+```
 
 ## Projection Expression
 To read data from a table, you use operations such as `GetItem`, `Query`, or `Scan`. Amazon DynamoDB returns all the item attributes by default. To get only some, rather than all of the attributes, use a projection expression - From AWS Docs. 
@@ -82,7 +189,7 @@ In Layman terms, you can call it as a selective picker which allows you to get o
 Instead of using CLI, we'll use Javascript AWS-SDK v2 because [v3-js-sdk isn't yet documented well enough.](https://github.com/aws/aws-sdk-js-v3/issues/2184  "Incomplete documentation aws-sdk-js-v3 #2184")
 
 
-### Lets get `Description`, `RelatedItems[0]`, `ProductReviews.FiveStar` with [getItem](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB.html#getItem-property)
+### Lets get `Description`, `RelatedItems[0]`, `ProductReviews.FiveStar` with getItem
 
 ```js
 const AWS = require('aws-sdk');
