@@ -1,6 +1,10 @@
 # Specifying Item Attributes When Using Expressions
 
-## JSON sample for this module
+## Table of content
+1. [JSON sample](#JSON-sample-for-this-module)
+
+
+### JSON sample for this module
 
 ```json
 {
@@ -73,6 +77,8 @@
 - `MyMap.nestedField`
 - `MyMap.nestedField.deeplyNestedField`
 
+Instead of using CLI, we'll use Javascript AWS-SDK v2 and not the v3 because [v3-js-sdk isn't yet documented well enough.](https://github.com/aws/aws-sdk-js-v3/issues/2184  "Incomplete documentation aws-sdk-js-v3 #2184")
+
 ### Creating Table `itemOps`
 ```js
 const AWS = require('aws-sdk');
@@ -128,7 +134,7 @@ dynamodb.createTable(params, function(err, data) {
   }
 }
 ```
-### [Insert our JSON data](#insert-json)
+### Insert our JSON data
 ```js
 const AWS = require('aws-sdk');
 
@@ -185,9 +191,6 @@ docClient.put(params, function(err, data) {
 To read data from a table, you use operations such as `GetItem`, `Query`, or `Scan`. Amazon DynamoDB returns all the item attributes by default. To get only some, rather than all of the attributes, use a projection expression - From AWS Docs. 
 
 In Layman terms, you can call it as a selective picker which allows you to get only selective items that you need and prevents over fetching thus saving throughput and money.
-
-Instead of using CLI, we'll use Javascript AWS-SDK v2 because [v3-js-sdk isn't yet documented well enough.](https://github.com/aws/aws-sdk-js-v3/issues/2184  "Incomplete documentation aws-sdk-js-v3 #2184")
-
 
 ### Lets get `Description`, `RelatedItems[0]`, `ProductReviews.FiveStar` with getItem
 
@@ -538,3 +541,166 @@ docClient.put(params, function(err, data) {
 ```
 same goes for `update` and `delete` operation
 
+## Comparison Operator and Function Reference
+
+- `a = b` — true if a is equal to b
+
+- `a <> b` — true if a is not equal to b
+
+- `a < b` — true if a is less than b
+
+- `a <= b` — true if a is less than or equal to b
+
+- `a > b` — true if a is greater than b
+
+- `a >= b` — true if a is greater than or equal to b
+
+These operators are utmost helpful in filter expression.
+
+## Update Expressions
+- `SET`
+- `REMOVE`
+- `ADD`
+- `DELETE`
+
+### `SET`
+1. Let say you have this data in your table and you want a add an year,
+
+| email           | data                  |  
+|-----------------|-----------------------|
+| abc@example.com | this is a random data | 
+
+here's how to do it,
+```js
+const AWS = require('aws-sdk');
+
+const docClient = new AWS.DynamoDB.DocumentClient({
+	region: 'ap-south-1'
+});
+
+var params = {
+	TableName: 'email',
+	Key: {
+		email: 'abc@example.com'
+	},
+	ExpressionAttributeNames: {
+		'#y': 'Year'
+	},
+	ExpressionAttributeValues:{
+		':y': 2021
+	},
+	UpdateExpression: 'SET #y = :y ' 
+};
+
+docClient.update(params, function(err, data) {
+	if (err)
+		console.log(err, err.stack); // an error occurred
+	else console.log(data); // successful response
+});
+```
+ Year is a reserved keyword hence we've used `ExpressionAttributeNames`
+
+**Result**
+| email           | data                  | Year |
+|-----------------|-----------------------|------|
+| abc@example.com | this is a random data | 2021 |
+
+### `ADD`
+
+There are two way to add a number. You can either use `SET` or `ADD` but AWS docs [recommends](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.UpdateExpressions.html#Expressions.UpdateExpressions.ADD 'ADD—Updating Numbers and Sets') to always use `SET`
+
+But first let see how to use `ADD` UpdateExpression to add the number in year
+```js
+const AWS = require('aws-sdk');
+
+const docClient = new AWS.DynamoDB.DocumentClient({
+	region: 'ap-south-1'
+});
+
+var params = {
+	TableName: 'email',
+	Key: {
+		email: 'abc@example.com'
+	},
+	ExpressionAttributeNames: {
+		'#y': 'Year'
+	},
+	ExpressionAttributeValues:{
+		':y': 2021
+	},
+	UpdateExpression: 'ADD #y :y' 
+};
+
+docClient.update(params, function(err, data) {
+	if (err)
+		console.log(err, err.stack); // an error occurred
+	else console.log(data); // successful response
+});
+```
+Now lets see how to use `SET` operator
+```js
+// Just change the UpdateExpression in above example as per following
+UpdateExpression: 'SET #y= #y + :y'
+```
+### REMOVE 
+If we want to delete our attribute `Year`, this is the way
+```js
+const AWS = require('aws-sdk');
+
+const docClient = new AWS.DynamoDB.DocumentClient({
+	region: 'ap-south-1'
+});
+
+var params = {
+	TableName: 'email',
+	Key: {
+		email: 'abc@example.com'
+	},
+	ExpressionAttributeNames: {
+		'#y': 'Year'
+	},
+	UpdateExpression: 'REMOVE #y'   //<------
+};
+
+docClient.update(params, function(err, data) {
+	if (err)
+		console.log(err, err.stack); // an error occurred
+	else console.log(data); // successful response
+});
+```
+### `DELETE`
+I'd say dont use `DELETE`as `REMOVE` works way efficiently and compared to remove, delete only clear top level sets of an item.
+
+Now at last, let's see some examples of `FilterExpression` in action with query which will utilise all the above concepts.
+
+```js
+const AWS = require('aws-sdk');
+
+const docClient = new AWS.DynamoDB.DocumentClient({
+	region: 'ap-south-1'
+});
+
+const params = {
+	TableName: 'covid-data',
+	ExpressionAttributeNames: {
+		'#location': 'location',
+		'#c':'continent',
+		'#si':'stringency_index'
+	},
+	ExpressionAttributeValues: {
+		':location': 'Afghanistan',
+		':c':'Asia',
+		':lv':'10',
+		':hv':'13'
+	},
+	KeyConditionExpression: '#location = :location AND #c = :c',
+	FilterExpression: '#si > :lv AND #si < :hv',
+	ConsistentRead: false,
+
+};
+docClient.query(params, function(err, data) {
+	if (err)
+		console.log(err, err.stack); // an error occurred
+	else console.log(data); // successful response
+});
+```
