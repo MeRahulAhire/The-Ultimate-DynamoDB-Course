@@ -2,7 +2,31 @@
 
 ## Table of content
 1. [JSON sample](#JSON-sample-for-this-module)
-
+	- [Top level Attribute](#top-level-attribute)
+	- [Nested Attributed](#nested-attributed)
+	- [Accessing List Elements](#accessing-list-elements)
+	- [Accessing Map Elements](#accessing-map-elements)
+	
+2. [Creating Table `itemOps`](#creating-table-itemops)
+	- [Insert our JSON data](#insert-our-json-data)
+3. [Projection Expression](#projection-expression)
+4. [Reserved Words](#reserved-words)
+	- [example](#so-lets-try-to-get-an-attribute-comment-from-our-json-date-which-is-a-reserved-keyword)
+5. [Attribute Names Containing Dots](#attribute-names-containing-dots)
+6. [Nested Attributes](#nested-attributes)
+7. [Repeating Attribute Names](#repeating-attribute-names)
+8. [Expression Attribute Values](#expression-attribute-values)
+9. [Condition Expressions](#condition-expressions)
+	- [List of all Condition Expression](#list-of-all-condition-expression)
+	- [Conditional Put in Javascript](#conditional-put-in-javascript)
+10. [Comparison Operator and Function Reference](#comparison-operator-and-function-reference)
+11. [Update Expressions](#update-expressions)
+	- [SET](#set)
+	- [ADD](#ADD)
+	- [REMOVE](#REMOVE)
+	- [DELETE](#DELETE)
+	
+12.[FilterExpress](#filterexpression)
 
 ### JSON sample for this module
 
@@ -671,6 +695,7 @@ docClient.update(params, function(err, data) {
 ### `DELETE`
 I'd say dont use `DELETE`as `REMOVE` works way efficiently and compared to remove, delete only clear top level sets of an item.
 
+## FilterExpression
 Now at last, let's see some examples of `FilterExpression` in action with query which will utilise all the above concepts.
 
 ```js
