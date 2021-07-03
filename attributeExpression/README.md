@@ -666,6 +666,7 @@ Now lets see how to use `SET` operator
 // Just change the UpdateExpression in above example as per following
 UpdateExpression: 'SET #y= #y + :y'
 ```
+**DynamoDB only supports addition and substraction natively. Inorder to do other math operations you have to implement your own logic.**
 ### REMOVE 
 If we want to delete our attribute `Year`, this is the way
 ```js
