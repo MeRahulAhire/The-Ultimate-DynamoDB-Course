@@ -719,6 +719,7 @@ const params = {
 		':lv':'10',
 		':hv':'13'
 	},
+	IndexName: 'GSI',
 	KeyConditionExpression: '#location = :location AND #c = :c',
 	FilterExpression: '#si > :lv AND #si < :hv',
 	ConsistentRead: false,
