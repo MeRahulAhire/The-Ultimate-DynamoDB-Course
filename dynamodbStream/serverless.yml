@@ -10,7 +10,7 @@
 #    docs.serverless.com
 #
 # Happy Coding!
-
+configValidationMode: warn
 service: dynamodbstream
 # app and org for use with dashboard.serverless.com
 #app: your-app-name
@@ -33,12 +33,12 @@ provider:
   iam:
     role:
       statement:
-   - Effect: "Allow"
-     Action:
-      - dynamodb:GetRecords
-      - dynamodb:GetShardIterator
-      - dynamodb:DescribeStream
-      - dynamodb:ListStreams
+      - Effect: "Allow"
+        Action:
+          - dynamodb:GetRecords
+          - dynamodb:GetShardIterator
+          - dynamodb:DescribeStream
+          - dynamodb:ListStreams
        
 
 # you can define service wide environment variables here
