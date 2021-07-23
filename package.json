@@ -13,6 +13,6 @@
     "async": "^3.2.0",
     "aws-sdk": "^2.931.0",
     "csv-parse": "^4.16.0",
-    "csv-parser": "^3.0.0"
+    "serverless-dynamo-stream-plugin": "^0.1.5"
   }
 }
