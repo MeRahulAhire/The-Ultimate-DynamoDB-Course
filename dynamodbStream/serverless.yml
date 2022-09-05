@@ -18,11 +18,11 @@ service: dynamodbstream
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
-frameworkVersion: '2'
+frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs16.x
   lambdaHashingVersion: 20201221
   region: ap-south-1
 
@@ -57,19 +57,23 @@ functions:
   hello:
     handler: handler.hello
     events:
-      - existingDynamoStream:
-          tableName: newTable
-          streamType: NEW_AND_OLD_IMAGES
+      - stream:
+          type: dynamodb
+          batchSize : 1
           startingPosition: LATEST
-          batchSize : 50
+          batchWindow: 1
+          arn: 
+           Fn::GetAtt: 
+                - StreamTable
+                - StreamArn
 
 # you can add CloudFormation resource templates here
 resources:
  Resources:
-   newTable:
+   StreamTable:
      Type: AWS::DynamoDB::Table
      Properties:
-      TableName: newTable
+      TableName: StreamTable
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
@@ -77,6 +81,6 @@ resources:
          - AttributeName: id
            KeyType: HASH
       BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
 
-plugins:
-  - serverless-dynamo-stream-plugin
